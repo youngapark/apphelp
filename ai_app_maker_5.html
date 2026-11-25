@@ -1,0 +1,2190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI APP MAKER - 상상한 아이디어를 실제 앱으로!</title>
+  <style>
+    /* ==========================================================================
+       1. 디자인 토큰 및 기본 스타일 설정 (파란색 & 화이트 중심 교육용 테마)
+       ========================================================================== */
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --primary-border: #bfdbfe;
+      --secondary: #0ea5e9;
+      --bg-main: #f4f8ff;
+      --bg-card: #ffffff;
+      --text-main: #1e293b;
+      --text-sub: #475569;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --shadow-sm: 0 2px 8px rgba(37, 99, 235, 0.06);
+      --shadow-md: 0 8px 24px rgba(37, 99, 235, 0.1);
+      --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', '맑은 고딕', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ==========================================================================
+       2. 상단 헤더 및 진행률 바
+       ========================================================================== */
+    header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--primary);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .logo-badge {
+      background: var(--primary);
+      color: white;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .save-status {
+      font-size: 0.85rem;
+      color: var(--success);
+      background: #ecfdf5;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .progress-container {
+      background: var(--primary-light);
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--primary-border);
+      display: none;
+    }
+
+    .progress-container.active {
+      display: block;
+    }
+
+    .progress-inner {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 10px;
+      background: #dbeafe;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      width: 0%;
+      transition: width 0.35s ease;
+      border-radius: 10px;
+    }
+
+    .step-dots {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      gap: 6px;
+    }
+
+    .step-dot {
+      flex: 1;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px 4px;
+      border-radius: 8px;
+      transition: all 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .step-dot:hover {
+      background: #dbeafe;
+      color: var(--primary);
+    }
+
+    .step-dot.active {
+      background: var(--primary);
+      color: white;
+      font-weight: 700;
+    }
+
+    .step-dot.completed {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       3. 메인 컨테이너 및 카드 레이아웃
+       ========================================================================== */
+    main {
+      flex: 1;
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .step-header {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--primary-light);
+    }
+
+    .step-badge {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 0.85rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+
+    .step-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .step-desc {
+      font-size: 1rem;
+      color: var(--text-sub);
+    }
+
+    /* ==========================================================================
+       4. 홈 화면 (메인 히어로 & 예시 갤러리)
+       ========================================================================== */
+    .hero-card {
+      background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 55%, #0ea5e9 100%);
+      color: white;
+      border-radius: var(--radius-lg);
+      padding: 48px 32px;
+      text-align: center;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 36px;
+    }
+
+    .hero-icon {
+      font-size: 3.5rem;
+      margin-bottom: 16px;
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.18);
+      width: 84px;
+      height: 84px;
+      line-height: 84px;
+      border-radius: 50%;
+    }
+
+    .hero-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-subtitle {
+      font-size: 1.15rem;
+      opacity: 0.95;
+      max-width: 620px;
+      margin: 0 auto 28px;
+      line-height: 1.7;
+    }
+
+    .btn-hero {
+      background: #ffffff;
+      color: var(--primary);
+      font-size: 1.2rem;
+      font-weight: 800;
+      padding: 16px 36px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-hero:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ==========================================================================
+       5. 폼 입력 요소 및 선택형 칩(Chip)
+       ========================================================================== */
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    .form-label .required {
+      color: var(--danger);
+      margin-left: 4px;
+    }
+
+    .form-hint {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .example-box {
+      background: var(--primary-light);
+      border-left: 4px solid var(--primary);
+      padding: 12px 16px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      margin-bottom: 12px;
+    }
+
+    .example-box strong {
+      color: var(--primary);
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 13px 16px;
+      font-size: 1rem;
+      font-family: inherit;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      color: var(--text-main);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    /* 선택형 버튼 그리드 */
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+    }
+
+    .option-btn {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .option-btn:hover {
+      border-color: var(--primary-border);
+      background: var(--primary-light);
+    }
+
+    .option-btn.selected {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    /* 색상 선택 버튼 전용 */
+    .color-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: inline-block;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+    }
+
+    /* ==========================================================================
+       6. STEP 2 기능 상세 카드 & STEP 4 동작 설계 카드
+       ========================================================================== */
+    .dynamic-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .sub-card {
+      background: #f8fafc;
+      border: 1.5px solid var(--primary-border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      position: relative;
+    }
+
+    .sub-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .sub-card-title {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-remove {
+      background: #fee2e2;
+      color: var(--danger);
+      border: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-remove:hover {
+      background: #fecaca;
+    }
+
+    .custom-add-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .flow-item label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+    }
+
+    /* ==========================================================================
+       7. STEP 6 요약 확인 및 STEP 7 결과물 탭
+       ========================================================================== */
+    .summary-section {
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      margin-bottom: 16px;
+      background: #fafcff;
+    }
+
+    .summary-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .summary-title {
+      font-weight: 800;
+      color: var(--primary);
+      font-size: 1.05rem;
+    }
+
+    .btn-edit-step {
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid var(--primary-border);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-edit-step:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .summary-content {
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .summary-content p {
+      margin-bottom: 6px;
+    }
+
+    .summary-content ul {
+      padding-left: 20px;
+      margin-top: 4px;
+    }
+
+    /* 탭 메뉴 */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 160px;
+      padding: 14px 16px;
+      background: var(--primary-light);
+      border: 2px solid var(--primary-border);
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--primary);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .result-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+      background: #f8fafc;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .output-box {
+      width: 100%;
+      min-height: 440px;
+      background: #0f172a;
+      color: #f8fafc;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 0.92rem;
+      line-height: 1.65;
+      padding: 20px;
+      border-radius: var(--radius-md);
+      border: none;
+      resize: vertical;
+      white-space: pre-wrap;
+    }
+
+    .external-links-box {
+      margin-top: 20px;
+      background: var(--primary-light);
+      border: 2px solid var(--primary-border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .external-links-title {
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .external-links-desc {
+      font-size: 0.92rem;
+      color: var(--text-sub);
+      margin-bottom: 16px;
+    }
+
+    .external-btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn-external {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: var(--radius-md);
+      font-weight: 800;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-gemini {
+      background: #1a73e8;
+      color: white;
+    }
+
+    .btn-lovable {
+      background: #111827;
+      color: white;
+    }
+
+    .btn-external:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    /* ==========================================================================
+       8. 공통 버튼 스타일 & 네비게이션 푸터
+       ========================================================================== */
+    .btn {
+      padding: 12px 22px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: var(--radius-md);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .btn-outline {
+      background: white;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-outline:hover {
+      background: var(--primary-light);
+    }
+
+    .btn-danger-outline {
+      background: white;
+      color: var(--danger);
+      border: 1.5px solid #fecaca;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+    }
+
+    .btn-danger-outline:hover {
+      background: #fef2f2;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    .step-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ==========================================================================
+       9. 토스트 메시지 및 커스텀 확인 모달 (alert / confirm 대체)
+       ========================================================================== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1e293b;
+      color: white;
+      padding: 14px 24px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      z-index: 9999;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal-box {
+      background: white;
+      border-radius: var(--radius-lg);
+      max-width: 420px;
+      width: 100%;
+      padding: 26px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: var(--text-main);
+    }
+
+    .modal-desc {
+      font-size: 0.95rem;
+      color: var(--text-sub);
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    /* ==========================================================================
+       10. 반응형 미디어 쿼리
+       ========================================================================== */
+    @media (max-width: 640px) {
+      .hero-title {
+        font-size: 1.65rem;
+      }
+      .hero-subtitle {
+        font-size: 1rem;
+      }
+      .card {
+        padding: 20px 16px;
+      }
+      .step-title {
+        font-size: 1.35rem;
+      }
+      .step-dot {
+        font-size: 0.7rem;
+      }
+      .option-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 헤더 -->
+  <header>
+    <div class="header-inner">
+      <div class="logo" onclick="goHome()" title="첫 화면으로 이동">
+        <span class="logo-badge">AI APP MAKER</span>
+        <span>앱 기획 도구</span>
+      </div>
+      <div class="header-actions">
+        <span class="save-status" id="saveStatus">✓ 자동 저장됨</span>
+        <button class="btn btn-danger-outline" onclick="openResetModal()">전체 초기화</button>
+      </div>
+    </div>
+
+    <!-- 단계 및 진행률 표시 바 (총 5단계) -->
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-inner">
+        <div class="progress-info">
+          <span id="progressStepText">STEP 1 / 5</span>
+          <span id="progressPercentText">20% 완료</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+        <div class="step-dots" id="stepDots">
+          <div class="step-dot" onclick="goToStep(1)">1.아이디어</div>
+          <div class="step-dot" onclick="goToStep(2)">2.기능</div>
+          <div class="step-dot" onclick="goToStep(3)">3.화면모습</div>
+          <div class="step-dot" onclick="goToStep(4)">4.동작·조건</div>
+          <div class="step-dot" onclick="goToStep(5)">5.완성결과</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ========================================================================
+         HOME SCREEN: 메인 화면 & 스스로 생각 꺼내기 안내
+         ======================================================================== -->
+    <section id="screen-0" class="screen active">
+      <div class="hero-card">
+        <div class="hero-icon">🚀</div>
+        <h1 class="hero-title">상상한 앱을 현실로 만들어 보세요!</h1>
+        <p class="hero-subtitle">
+          정답은 없어요! 내 머릿속에 떠오른 생각 조각들을 5단계로 하나씩 꺼내어 적다 보면<br>
+          나만의 진짜 앱 설계도가 모양을 갖추게 됩니다.
+        </p>
+        <button class="btn-hero" onclick="startMaking()">
+          <span>✨ 내 생각으로 앱 만들기</span>
+        </button>
+      </div>
+
+      <div class="card">
+        <h2 class="gallery-section-title">💭 내 머릿속에서 아이디어 꺼내 보기</h2>
+        <p class="gallery-section-desc">
+          완성된 답을 고르기보다, 아래 물음에 내 생각을 떠올려 본 뒤 <strong>[내 생각으로 앱 만들기]</strong>를 눌러 시작해 보세요!
+        </p>
+        <div class="gallery-grid" id="galleryGrid">
+          <!-- JavaScript에서 스스로 떠올리는 생각 힌트 카드 렌더링 -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         STEP 1: 어떤 앱을 만들까? (아이디어 구상)
+         ======================================================================== -->
+    <section id="screen-1" class="screen">
+      <div class="card">
+        <div class="step-header">
+          <span class="step-badge">STEP 1 / 5</span>
+          <h2 class="step-title">어떤 앱을 만들까? (아이디어 구상)</h2>
+          <p class="step-desc">머릿속으로 떠올린 앱의 이름과 어떤 앱인지 친구에게 말하듯 내 생각을 적어보세요.</p>
+        </div>
+
+        <div class="example-box">
+          <strong>💭 스스로 던져 볼 질문:</strong><br>
+          • <strong>앱 이름:</strong> 내 앱을 부를 때 어떤 이름이 가장 어울릴까?<br>
+          • <strong>어떤 앱인가요?:</strong> 이 앱을 켜면 무엇을 하며 놀거나 도움을 받을 수 있을까?
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="appName">1. 앱 이름을 지어볼까요? <span class="required">*</span></label>
+          <span class="form-hint">내 상상이 담긴 이름을 직접 지어 주세요.</span>
+          <input type="text" id="appName" placeholder="나만의 앱 이름을 직접 적어 보세요" oninput="updateField('appName', this.value)" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         STEP 1: 어떤 앱을 만들까? (아이디어 구상)
+         ======================================================================== -->
+    <section id="screen-1" class="screen">
+      <div class="card">
+        <div class="step-header">
+          <span class="step-badge">STEP 1 / 5</span>
+          <h2 class="step-title">어떤 앱을 만들까? (아이디어 구상)</h2>
+          <p class="step-desc">머릿속으로 떠올린 앱의 이름과 어떤 앱인지 친구에게 말하듯 쉽게 적어보세요.</p>
+        </div>
+
+        <div class="example-box">
+          <strong>💡 이렇게 적어보면 쉬워요:</strong><br>
+          • <strong>앱 이름:</strong> 수학 대포왕<br>
+          • <strong>어떤 앱인가요?:</strong> 각도와 힘을 조절해서 대포를 쏘고 과녁을 맞히는 재미있는 수학 게임이에요.
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="appName">1. 앱 이름을 지어볼까요? <span class="required">*</span></label>
+          <span class="form-hint">멋지고 기억에 남는 이름을 붙여 주세요.</span>
+          <input type="text" id="appName" placeholder="예: 수학 대포왕, 오늘 뭐 먹지?" oninput="updateField('appName', this.value)" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">2. 어떤 종류의 앱인가요? <span class="required">*</span></label>
+          <span class="form-hint">가장 비슷한 분야 하나를 골라 주세요.</span>
+          <div class="option-grid" id="appTypeGrid"></div>
+          <div id="appTypeCustomWrap" style="display:none; margin-top:10px;">
+            <input type="text" id="appTypeCustom" placeholder="만들고 싶은 앱 종류를 자유롭게 적어 주세요" oninput="updateField('appTypeCustom', this.value)" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="appDesc">3. 이 앱에서 무엇을 할 수 있나요? <span class="required">*</span></label>
+          <span class="form-hint">내가 상상하는 앱의 모습을 내 말로 풀어 적어 보세요.</span>
+          <textarea id="appDesc" placeholder="이 앱에서 어떤 일이 일어나는지 내 생각을 자유롭게 적어 보세요." oninput="updateField('appDesc', this.value)"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">4. 누가 이 앱을 쓰면 좋을까요?</label>
+          <div class="option-grid" id="targetUserGrid"></div>
+          <div id="targetUserCustomWrap" style="display:none; margin-top:10px;">
+            <input type="text" id="targetUserCustom" placeholder="함께 쓸 사람을 직접 적어 보세요" oninput="updateField('targetUserCustom', this.value)" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="appReason">5. 이 앱을 만들고 싶은 이유는 무엇인가요?</label>
+          <span class="form-hint">재미있을 것 같아서, 불편해서 등 나만의 진짜 이유를 적어 보세요.</span>
+          <textarea id="appReason" placeholder="왜 이 앱을 만들고 싶었는지 내 마음을 적어 보세요." oninput="updateField('appReason', this.value)"></textarea>
+        </div>
+
+        <div class="step-nav">
+          <button class="btn btn-secondary" onclick="goHome()">← 첫 화면으로</button>
+          <button class="btn btn-primary" onclick="nextStep(1)">다음: 필요한 기능 고르기 →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         STEP 2: 어떤 기능이 필요할까? (기능 설계)
+         ======================================================================== -->
+    <section id="screen-2" class="screen">
+      <div class="card">
+        <div class="step-header">
+          <span class="step-badge">STEP 2 / 5</span>
+          <h2 class="step-title">어떤 기능이 필요할까? (기능 고르기)</h2>
+          <p class="step-desc">앱에 들어가면 좋을 기능을 1개 이상 골라 보세요. 고른 기능마다 어떻게 쓸지 간단히 적으면 됩니다!</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">1. 필요한 기능 버튼 누르기 <span class="required">*</span></label>
+          <span class="form-hint">여러 개를 골라도 되고, 아래에 원하는 기능을 직접 추가할 수도 있어요.</span>
+          <div class="option-grid" id="featureOptionsGrid"></div>
+
+          <div class="custom-add-row">
+            <input type="text" id="customFeatureInput" placeholder="내가 떠올린 기능 직접 적기" onkeypress="if(event.key==='Enter') addCustomFeature()" />
+            <button class="btn btn-outline" type="button" onclick="addCustomFeature()">+ 추가</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">2. 고른 기능은 어떻게 작동하면 좋을까요?</label>
+          <span class="form-hint">빈칸으로 두어도 괜찮지만, 상상하는 모습을 적으면 AI가 훨씬 잘 만들어 줘요!</span>
+          <div class="dynamic-list" id="selectedFeaturesList"></div>
+        </div>
+
+        <div class="step-nav">
+          <button class="btn btn-secondary" onclick="prevStep(2)">← 이전 단계</button>
+          <button class="btn btn-primary" onclick="nextStep(2)">다음: 화면 모습 꾸미기 →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         STEP 3: 화면은 어떻게 생겼을까? (화면 디자인)
+         ======================================================================== -->
+    <section id="screen-3" class="screen">
+      <div class="card">
+        <div class="step-header">
+          <span class="step-badge">STEP 3 / 5</span>
+          <h2 class="step-title">화면은 어떻게 생겼을까? (화면 모습)</h2>
+          <p class="step-desc">앱 화면의 느낌과 색깔, 그림이나 버튼이 어디에 놓일지 상상해 봅시다.</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">1. 어떤 느낌의 화면이면 좋을까요?</label>
+          <div class="option-grid" id="moodGrid"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">2. 좋아하는 중심 색깔을 골라 보세요</label>
+          <div class="option-grid" id="colorGrid"></div>
+          <div id="customColorWrap" style="display:none; margin-top:10px;">
+            <input type="text" id="customColor" placeholder="예: 하늘색과 노란색, 분홍색" oninput="updateField('customColor', this.value)" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">3. 화면을 어떻게 나눌까요?</label>
+          <div class="option-grid" id="layoutGrid"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">4. 화면에 보였으면 하는 것들 (여러 개 선택 가능)</label>
+          <div class="option-grid" id="uiElementsGrid"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">5. 그림이나 캐릭터는 어떻게 그릴까요?</label>
+          <div class="option-grid" id="graphicMethodGrid"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="visualDesc">6. 머릿속에 떠오르는 화면 모습을 자유롭게 그려 보세요!</label>
+          <span class="form-hint">위쪽, 가운데, 아래쪽에 무엇이 있는지, 어떤 모습인지 내 상상을 글로 적어 보세요.</span>
+          <textarea id="visualDesc" placeholder="내 머릿속 화면에는 어떤 그림, 글자, 버튼이 어디에 놓여 있나요?" oninput="updateField('visualDesc', this.value)"></textarea>
+        </div>
+
+        <div class="step-nav">
+          <button class="btn btn-secondary" onclick="prevStep(3)">← 이전 단계</button>
+          <button class="btn btn-primary" onclick="nextStep(3)">다음: 움직임과 사용 조건 →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         STEP 4: 어떻게 움직이고, 어떤 조건으로 쓸까? (동작 & 조건 통합)
+         ======================================================================== -->
+    <section id="screen-4" class="screen">
+      <div class="card">
+        <div class="step-header">
+          <span class="step-badge">STEP 4 / 5</span>
+          <h2 class="step-title">어떻게 움직이고, 어떤 조건으로 쓸까?</h2>
+          <p class="step-desc">내가 버튼을 누르거나 입력했을 때 앱이 어떻게 변하는지, 그리고 어디서 쓸지 간단히 정해 봅시다.</p>
+        </div>
+
+        <div class="example-box">
+          <strong>💭 움직임 상상하기:</strong><br>
+          • <strong>내가 한 행동:</strong> 내가 누르거나 고르거나 적는 행동은 무엇일까?<br>
+          • <strong>앱이 움직이는 모습 & 결과:</strong> 그 순간 화면 속 사물이나 숫자가 어떻게 변할까?
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">1. 행동 → 변화 → 결과 이야기 만들기</label>
+          <div class="dynamic-list" id="interactionsList"></div>
+          <div style="margin-top: 12px;">
+            <button class="btn btn-outline" type="button" onclick="addInteraction()">+ 움직임 규칙 하나 더 추가하기</button>
+          </div>
+        </div>
+
+        <hr style="border: none; border-top: 1.5px solid var(--primary-light); margin: 28px 0;">
+
+        <div class="form-group">
+          <label class="form-label">2. 주로 어떤 기기에서 사용할까요?</label>
+          <div class="option-grid" id="deviceGrid"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">3. 인터넷이 없어도 쓸 수 있으면 좋을까요?</label>
+          <div class="option-grid" id="internetGrid"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">4. 내 기록이나 점수를 저장할까요?</label>
+          <div class="option-grid" id="storageGrid"></div>
+        </div>
+
+        <!-- 로그인 상태 기본값 유지를 위한 숨김/선택 유지 처리 -->
+        <div id="loginGrid" style="display:none;"></div>
+
+        <div class="form-group">
+          <label class="form-label" for="extraRequests">5. AI에게 꼭 부탁하고 싶은 말이 있나요? (선택)</label>
+          <textarea id="extraRequests" placeholder="만들어질 앱에 꼭 담겼으면 하는 나만의 바람이 있다면 적어 보세요." oninput="updateField('extraRequests', this.value)"></textarea>
+        </div>
+
+        <div class="step-nav">
+          <button class="btn btn-secondary" onclick="prevStep(4)">← 이전 단계</button>
+          <button class="btn btn-primary" style="font-size: 1.05rem; padding: 13px 24px;" onclick="generateAllOutputs(true)">
+            🎉 설계도 확인하고 결과물 만들기 →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         STEP 5: 나의 앱 설계도 확인 & 최종 결과물 (PRD / Gemini / Lovable)
+         ======================================================================== -->
+    <section id="screen-5" class="screen">
+      <div class="card">
+        <div class="step-header">
+          <span class="step-badge">STEP 5 / 5 🎉 완성!</span>
+          <h2 class="step-title">나의 앱 설계도 & AI 프롬프트 완성!</h2>
+          <p class="step-desc">내가 적은 내용이 잘 들어갔는지 확인하고, 아래 탭에서 PRD 보고서나 Gemini·Lovable 프롬프트를 복사해 보세요!</p>
+        </div>
+
+        <!-- 입력 내용 요약 접기/펼치기 영역 -->
+        <details style="margin-bottom: 24px; background: #f8fafc; border: 1.5px solid var(--primary-border); border-radius: var(--radius-md); padding: 16px;">
+          <summary style="font-weight: 800; color: var(--primary); cursor: pointer; font-size: 1.05rem;">
+            👀 내가 입력한 설계 내용 요약 보기 & 단계별 수정하기 (클릭)
+          </summary>
+          <div id="summaryContainer" style="margin-top: 16px;"></div>
+        </details>
+
+        <!-- 3개 탭 버튼 -->
+        <div class="tabs">
+          <button class="tab-btn active" id="tabBtn-prd" onclick="switchTab('prd')">📋 1. PRD 보고서</button>
+          <button class="tab-btn" id="tabBtn-gemini" onclick="switchTab('gemini')">✨ 2. Gemini용 프롬프트</button>
+          <button class="tab-btn" id="tabBtn-lovable" onclick="switchTab('lovable')">💜 3. Lovable용 프롬프트</button>
+        </div>
+
+        <!-- 결과물 액션 툴바 -->
+        <div class="result-toolbar">
+          <span id="currentTabLabel" style="font-weight: 700; color: var(--primary);">현재 보기: 1. 앱 전체 설계 PRD 보고서</span>
+          <div class="result-actions">
+            <button class="btn btn-success" onclick="copyCurrentOutput()">📋 전체 내용 복사</button>
+            <button class="btn btn-outline" onclick="goToStep(4)">✏️ 내용 수정</button>
+            <button class="btn btn-secondary" onclick="openResetModal()">🔄 처음부터 다시 만들기</button>
+          </div>
+        </div>
+
+        <!-- 결과 텍스트 영역 -->
+        <textarea id="outputTextarea" class="output-box" readonly></textarea>
+
+        <!-- 외부 AI 도구 열기 안내 -->
+        <div class="external-links-box">
+          <div class="external-links-title">🚀 이제 실제 앱을 만들어 볼까요?</div>
+          <p class="external-links-desc">
+            위에서 <strong>[전체 내용 복사]</strong>를 누른 뒤, 아래 버튼을 눌러 AI 사이트를 열고 채팅창에 붙여넣기(Ctrl+V 또는 길게 눌러 붙여넣기) 하세요!
+          </p>
+          <div class="external-btn-group">
+            <a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer" class="btn-external btn-gemini">
+              ✨ Google Gemini 열기 ↗
+            </a>
+            <a href="https://lovable.dev/" target="_blank" rel="noopener noreferrer" class="btn-external btn-lovable">
+              💜 Lovable 열기 ↗
+            </a>
+          </div>
+        </div>
+
+        <div class="step-nav">
+          <button class="btn btn-secondary" onclick="goToStep(4)">← 4단계로 돌아가기</button>
+          <button class="btn btn-primary" onclick="copyCurrentOutput()">📋 전체 내용 복사하기</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 알림 토스트 메시지 -->
+  <div id="toast" class="toast">복사되었습니다!</div>
+
+  <!-- 초기화 확인 모달 (confirm() 대체) -->
+  <div id="resetModal" class="modal-backdrop">
+    <div class="modal-box">
+      <div style="font-size: 2.5rem; margin-bottom: 10px;">⚠️</div>
+      <div class="modal-title">작성한 내용을 모두 지울까요?</div>
+      <p class="modal-desc">
+        초기화하면 지금까지 입력한 앱 기획 내용이 모두 삭제되고 첫 화면으로 돌아갑니다.
+      </p>
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" onclick="closeResetModal()">취소</button>
+        <button class="btn btn-primary" style="background: var(--danger);" onclick="confirmReset()">네, 초기화할게요</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       1. 데이터 구조 및 상수 정의
+       ========================================================================== */
+    const STORAGE_KEY = 'ai_app_maker_data_v1';
+
+    const APP_TYPES = [
+      '게임', '공부 및 학습', '계산 및 도구', '생활 관리',
+      '그림 및 창작', '퀴즈 및 테스트', '정보 제공', '기타'
+    ];
+
+    const TARGET_USERS = [
+      '나 혼자', '친구들', '학생', '모든 사람', '기타'
+    ];
+
+    const FEATURE_PRESETS = [
+      { name: '버튼 작동', prompt: '어떤 버튼이 있고, 누르면 어떤 일이 일어나나요?', placeholder: '내가 누를 버튼과 그 버튼을 눌렀을 때 일어날 일을 적어 보세요.' },
+      { name: '글자 입력', prompt: '어떤 글자를 적고, 앱이 그 글자로 뭘 하나요?', placeholder: '적고 싶은 글자와 앱이 어떻게 반응할지 적어 보세요.' },
+      { name: '숫자 입력 및 계산', prompt: '어떤 숫자를 넣고, 어떻게 계산하나요?', placeholder: '어떤 숫자를 다루고 어떤 결과가 나오면 좋을지 적어 보세요.' },
+      { name: '점수 표시', prompt: '언제 점수가 올라가고, 어디에 보이나요?', placeholder: '점수가 언제 오르고 화면 어디에 보이면 좋을지 적어 보세요.' },
+      { name: '퀴즈 및 정답 확인', prompt: '문제는 어떻게 나오고, 맞히거나 틀리면 어떻게 되나요?', placeholder: '문제가 나오는 방식과 맞혔을 때·틀렸을 때의 모습을 적어 보세요.' },
+      { name: '그림 및 이미지 표시', prompt: '어떤 그림이나 이모지가 보이나요?', placeholder: '어떤 그림이나 모습이 화면에 나타나면 좋을지 적어 보세요.' },
+      { name: '캐릭터 움직이기', prompt: '캐릭터가 어떻게 움직이고, 무엇을 하나요?', placeholder: '캐릭터가 어떻게 움직이고 어떤 행동을 할지 적어 보세요.' },
+      { name: '게임 및 스테이지', prompt: '이기는 조건, 지는 조건, 단계(스테이지)는 어떻게 되나요?', placeholder: '어떻게 하면 이기거나 다음 단계로 갈지 내 생각을 적어 보세요.' },
+      { name: '타이머', prompt: '제한 시간은 얼마이고, 시간이 다 되면 어떻게 되나요?', placeholder: '시간이 어떻게 흐르고 다 되었을 때 무슨 일이 생길지 적어 보세요.' },
+      { name: '목록 및 기록 저장', prompt: '어떤 기록을 모아서 보여주고, 지울 수도 있나요?', placeholder: '어떤 내용을 모아서 보고 싶고 어떻게 관리할지 적어 보세요.' },
+      { name: '검색', prompt: '무엇을 찾고 싶고, 어떻게 보여줄까요?', placeholder: '무엇을 찾고 싶고 어떤 식으로 보여주면 좋을지 적어 보세요.' }
+    ];
+
+    const MOODS = [
+      '귀엽고 재미있는', '깔끔하고 심플한', '미래적인', '게임처럼 신나는', '멋지고 세련된'
+    ];
+
+    const COLORS = [
+      { name: '파란색', hex: '#2563eb' },
+      { name: '빨간색', hex: '#ef4444' },
+      { name: '초록색', hex: '#10b981' },
+      { name: '노란색', hex: '#f59e0b' },
+      { name: '보라색', hex: '#8b5cf6' },
+      { name: '검은색', hex: '#1e293b' },
+      { name: '직접 선택', hex: 'linear-gradient(45deg, #f43f5e, #3b82f6, #10b981)' }
+    ];
+
+    const LAYOUTS = [
+      '한 화면에 다 모으기', '시작 화면과 게임·실행 화면 나누기', '메뉴별로 여러 화면 나누기'
+    ];
+
+    const UI_ELEMENTS = [
+      '제목', '버튼', '입력창', '이미지', '캐릭터', '점수판', '그래프', '결과 표시'
+    ];
+
+    const GRAPHIC_METHODS = [
+      '이모지와 예쁜 상자·버튼으로 꾸미기',
+      'Canvas로 그림이나 움직임을 직접 그리기',
+      '그림/아이콘 활용하기',
+      '잘 모르겠음 (AI가 어울리게 추천)'
+    ];
+
+    const DEVICES = ['모든 기기 (PC·태블릿·스마트폰)', 'PC', '태블릿', '스마트폰'];
+    const INTERNET_OPTS = ['인터넷 없이 사용 (오프라인 작동)', '인터넷 연결 필요', '잘 모르겠음 (기본 추천값)'];
+    const LOGIN_OPTS = ['필요 없음 (바로 사용)', '필요함', '잘 모르겠음 (기본 추천값)'];
+    const STORAGE_OPTS = [
+      '브라우저에 저장 (새로고침해도 유지 - 추천)',
+      '현재 실행 중에만 유지',
+      '저장하지 않음',
+      '서버에 저장',
+      '잘 모르겠음 (기본 추천값)'
+    ];
+
+    /* ==========================================================================
+       2. 스스로 생각을 꺼내기 위한 발상 질문 카드 (완성된 정답 자동입력 없음)
+       ========================================================================== */
+    const GALLERY_EXAMPLES = [
+      {
+        icon: '🌱',
+        title: '평소 불편했던 점',
+        tag: '발상 질문 1',
+        desc: '요즘 자꾸 잊어버리거나 귀찮고 번거로웠던 일이 있나요? 그걸 도와줄 도구를 떠올려 보세요.'
+      },
+      {
+        icon: '🎮',
+        title: '나만의 규칙 만들기',
+        tag: '발상 질문 2',
+        desc: '내가 만든 놀이의 규칙은 무엇일까요? 이기거나 점수를 얻는 나만의 기준을 생각해 보세요.'
+      },
+      {
+        icon: '🎨',
+        title: '상상 속 화면 그리기',
+        tag: '발상 질문 3',
+        desc: '앱을 켰을 때 가장 먼저 무엇이 보이면 기분이 좋을까요? 색깔과 분위기를 떠올려 보세요.'
+      },
+      {
+        icon: '🤝',
+        title: '누구를 기쁘게 할까?',
+        tag: '발상 질문 4',
+        desc: '이 앱을 가장 먼저 보여주고 싶은 사람은 누구인가요? 그 사람이 쓰기 편한 모습을 상상해 보세요.'
+      }
+    ];
+
+    /* ==========================================================================
+       3. 애플리케이션 상태 관리 (State)
+       ========================================================================== */
+    function getDefaultState() {
+      return {
+        currentStep: 0, // 0: 홈, 1~7: 단계
+        activeTab: 'prd',
+        appName: '',
+        appType: '',
+        appTypeCustom: '',
+        appDesc: '',
+        targetUser: '',
+        targetUserCustom: '',
+        appReason: '',
+        features: [], // [{ name: string, detail: string }]
+        mood: '깔끔하고 심플한',
+        mainColor: '파란색',
+        customColor: '',
+        layout: '시작 화면과 실행 화면 분리',
+        uiElements: ['제목', '버튼', '결과 표시'],
+        graphicMethod: 'CSS 도형과 이모지로 깔끔하게 표현',
+        visualDesc: '',
+        interactions: [
+          { action: '', response: '', result: '' }
+        ],
+        device: '모든 기기 (PC·태블릿·스마트폰)',
+        internet: '인터넷 없이 사용 (오프라인 작동)',
+        login: '필요 없음 (바로 사용)',
+        storage: '브라우저에 저장 (새로고침해도 유지 - 추천)',
+        extraRequests: ''
+      };
+    }
+
+    let state = getDefaultState();
+    let generatedDocs = { prd: '', gemini: '', lovable: '' };
+
+    /* ==========================================================================
+       4. 초기화 및 LocalStorage 저장/복원
+       ========================================================================== */
+    function initApp() {
+      renderGallery();
+      renderOptionGrids();
+      loadState();
+      syncFormWithState();
+      goToStep(state.currentStep, false);
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        const statusEl = document.getElementById('saveStatus');
+        statusEl.textContent = '✓ 자동 저장됨';
+        statusEl.style.opacity = '1';
+      } catch (e) {
+        console.warn('로컬 저장소 저장 실패:', e);
+      }
+    }
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          state = { ...getDefaultState(), ...parsed };
+          if (!Array.isArray(state.features)) state.features = [];
+          if (!Array.isArray(state.uiElements)) state.uiElements = [];
+          if (!Array.isArray(state.interactions) || state.interactions.length === 0) {
+            state.interactions = [{ action: '', response: '', result: '' }];
+          }
+        }
+      } catch (e) {
+        console.warn('저장된 데이터 불러오기 오류:', e);
+        state = getDefaultState();
+      }
+    }
+
+    function updateField(key, value) {
+      state[key] = value;
+      saveState();
+    }
+
+    /* ==========================================================================
+       5. UI 렌더링 함수들
+       ========================================================================== */
+    function renderGallery() {
+      const grid = document.getElementById('galleryGrid');
+      grid.innerHTML = GALLERY_EXAMPLES.map((item) => `
+        <div class="gallery-card" onclick="startMaking()">
+          <div>
+            <div class="gallery-icon">${item.icon}</div>
+            <div class="gallery-title">${item.title}</div>
+            <div class="gallery-desc">${item.desc}</div>
+          </div>
+          <span class="gallery-tag">${item.tag} • 생각 꺼내러 가기</span>
+        </div>
+      `).join('');
+    }
+
+    function renderOptionGrids() {
+      // 1. 앱 종류
+      renderSingleSelect('appTypeGrid', APP_TYPES, 'appType', (val) => {
+        document.getElementById('appTypeCustomWrap').style.display = val === '기타' ? 'block' : 'none';
+      });
+
+      // 2. 주요 사용자
+      renderSingleSelect('targetUserGrid', TARGET_USERS, 'targetUser', (val) => {
+        document.getElementById('targetUserCustomWrap').style.display = val === '기타' ? 'block' : 'none';
+      });
+
+      // 3. STEP 2 기능 선택 버튼
+      const featGrid = document.getElementById('featureOptionsGrid');
+      featGrid.innerHTML = FEATURE_PRESETS.map(f => `
+        <button type="button" class="option-btn" data-feature="${f.name}" onclick="toggleFeature('${f.name}')">
+          ${f.name}
+        </button>
+      `).join('');
+
+      // 4. STEP 3 분위기, 색상, 화면구성, UI요소, 그래픽방식
+      renderSingleSelect('moodGrid', MOODS, 'mood');
+
+      const colorGrid = document.getElementById('colorGrid');
+      colorGrid.innerHTML = COLORS.map(c => `
+        <button type="button" class="option-btn" data-value="${c.name}" onclick="selectSingle('colorGrid', 'mainColor', '${c.name}')">
+          <span class="color-dot" style="background:${c.hex};"></span>
+          <span>${c.name}</span>
+        </button>
+      `).join('');
+
+      renderSingleSelect('layoutGrid', LAYOUTS, 'layout');
+
+      const uiGrid = document.getElementById('uiElementsGrid');
+      uiGrid.innerHTML = UI_ELEMENTS.map(el => `
+        <button type="button" class="option-btn" data-value="${el}" onclick="toggleUiElement('${el}')">
+          ${el}
+        </button>
+      `).join('');
+
+      renderSingleSelect('graphicMethodGrid', GRAPHIC_METHODS, 'graphicMethod');
+
+      // 5. STEP 5 개발 조건
+      renderSingleSelect('deviceGrid', DEVICES, 'device');
+      renderSingleSelect('internetGrid', INTERNET_OPTS, 'internet');
+      renderSingleSelect('loginGrid', LOGIN_OPTS, 'login');
+      renderSingleSelect('storageGrid', STORAGE_OPTS, 'storage');
+    }
+
+    function renderSingleSelect(containerId, items, stateKey, callback) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = items.map(item => `
+        <button type="button" class="option-btn" data-value="${item}" onclick="selectSingle('${containerId}', '${stateKey}', '${item}')">
+          ${item}
+        </button>
+      `).join('');
+    }
+
+    function selectSingle(containerId, stateKey, value) {
+      state[stateKey] = value;
+      saveState();
+
+      const container = document.getElementById(containerId);
+      container.querySelectorAll('.option-btn').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.value === value);
+      });
+
+      if (stateKey === 'appType') {
+        document.getElementById('appTypeCustomWrap').style.display = value === '기타' ? 'block' : 'none';
+      }
+      if (stateKey === 'targetUser') {
+        document.getElementById('targetUserCustomWrap').style.display = value === '기타' ? 'block' : 'none';
+      }
+      if (stateKey === 'mainColor') {
+        document.getElementById('customColorWrap').style.display = value === '직접 선택' ? 'block' : 'none';
+      }
+    }
+
+    function toggleUiElement(elementName) {
+      const idx = state.uiElements.indexOf(elementName);
+      if (idx > -1) {
+        state.uiElements.splice(idx, 1);
+      } else {
+        state.uiElements.push(elementName);
+      }
+      saveState();
+      syncUiElementsButtons();
+    }
+
+    function syncUiElementsButtons() {
+      const container = document.getElementById('uiElementsGrid');
+      container.querySelectorAll('.option-btn').forEach(btn => {
+        btn.classList.toggle('selected', state.uiElements.includes(btn.dataset.value));
+      });
+    }
+
+    /* ==========================================================================
+       6. STEP 2 기능 선택 및 상세 질문 관리
+       ========================================================================== */
+    function toggleFeature(featureName) {
+      const existingIdx = state.features.findIndex(f => f.name === featureName);
+      if (existingIdx > -1) {
+        state.features.splice(existingIdx, 1);
+      } else {
+        state.features.push({ name: featureName, detail: '' });
+      }
+      saveState();
+      renderSelectedFeatures();
+    }
+
+    function addCustomFeature() {
+      const input = document.getElementById('customFeatureInput');
+      const val = input.value.trim();
+      if (!val) {
+        showToast('추가할 기능 이름을 입력해 주세요!');
+        return;
+      }
+      if (state.features.some(f => f.name === val)) {
+        showToast('이미 추가된 기능입니다.');
+        return;
+      }
+      state.features.push({ name: val, detail: '' });
+      input.value = '';
+      saveState();
+      renderSelectedFeatures();
+    }
+
+    function removeFeature(index) {
+      state.features.splice(index, 1);
+      saveState();
+      renderSelectedFeatures();
+    }
+
+    function updateFeatureDetail(index, value) {
+      if (state.features[index]) {
+        state.features[index].detail = value;
+        saveState();
+      }
+    }
+
+    function renderSelectedFeatures() {
+      // 상단 버튼 하이라이트 동기화
+      const selectedNames = state.features.map(f => f.name);
+      document.querySelectorAll('#featureOptionsGrid .option-btn').forEach(btn => {
+        btn.classList.toggle('selected', selectedNames.includes(btn.dataset.feature));
+      });
+
+      const listEl = document.getElementById('selectedFeaturesList');
+      if (state.features.length === 0) {
+        listEl.innerHTML = `
+          <div style="text-align:center; padding: 24px; background:#f8fafc; border-radius:12px; color:var(--text-muted); border: 1.5px dashed var(--border);">
+            위에서 필요한 기능을 1개 이상 선택하거나 직접 추가해 주세요!
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = state.features.map((feat, idx) => {
+        const preset = FEATURE_PRESETS.find(p => p.name === feat.name);
+        const guideQuestion = preset ? preset.prompt : '이 기능이 앱에서 어떻게 작동하는지 자세히 적어주세요.';
+        const placeholderText = preset ? preset.placeholder : '예: 버튼을 누르면 효과가 나타납니다.';
+
+        return `
+          <div class="sub-card">
+            <div class="sub-card-header">
+              <span class="sub-card-title">⚙️ ${feat.name}</span>
+              <button type="button" class="btn-remove" onclick="removeFeature(${idx})">삭제</button>
+            </div>
+            <span class="form-hint" style="margin-bottom:8px; color:var(--text-sub);">💬 ${guideQuestion}</span>
+            <input type="text" value="${escapeHtml(feat.detail)}" placeholder="${placeholderText}" oninput="updateFeatureDetail(${idx}, this.value)" />
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* ==========================================================================
+       7. STEP 4 동작 설계 관리
+       ========================================================================== */
+    function addInteraction() {
+      state.interactions.push({ action: '', response: '', result: '' });
+      saveState();
+      renderInteractions();
+    }
+
+    function removeInteraction(index) {
+      if (state.interactions.length <= 1) {
+        showToast('최소 1개의 동작 규칙은 남겨두어야 합니다.');
+        return;
+      }
+      state.interactions.splice(index, 1);
+      saveState();
+      renderInteractions();
+    }
+
+    function updateInteraction(index, field, value) {
+      if (state.interactions[index]) {
+        state.interactions[index][field] = value;
+        saveState();
+      }
+    }
+
+    function renderInteractions() {
+      const container = document.getElementById('interactionsList');
+      container.innerHTML = state.interactions.map((item, idx) => `
+        <div class="sub-card">
+          <div class="sub-card-header">
+            <span class="sub-card-title">🔄 움직임 이야기 #${idx + 1}</span>
+            ${state.interactions.length > 1 ? `<button type="button" class="btn-remove" onclick="removeInteraction(${idx})">삭제</button>` : ''}
+          </div>
+          <div class="flow-grid">
+            <div class="flow-item">
+              <label>1. 내가 한 행동</label>
+              <input type="text" value="${escapeHtml(item.action)}" placeholder="내가 어떤 행동을 하나요?" oninput="updateInteraction(${idx}, 'action', this.value)" />
+            </div>
+            <div class="flow-item">
+              <label>2. 앱이 움직이는 모습</label>
+              <input type="text" value="${escapeHtml(item.response)}" placeholder="앱이 어떻게 움직이나요?" oninput="updateInteraction(${idx}, 'response', this.value)" />
+            </div>
+            <div class="flow-item">
+              <label>3. 결과</label>
+              <input type="text" value="${escapeHtml(item.result)}" placeholder="어떤 결과가 나타나나요?" oninput="updateInteraction(${idx}, 'result', this.value)" />
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /* ==========================================================================
+       8. 폼 동기화 및 단계 이동 / 유효성 검사
+       ========================================================================== */
+    function syncFormWithState() {
+      document.getElementById('appName').value = state.appName || '';
+      document.getElementById('appTypeCustom').value = state.appTypeCustom || '';
+      document.getElementById('appDesc').value = state.appDesc || '';
+      document.getElementById('targetUserCustom').value = state.targetUserCustom || '';
+      document.getElementById('appReason').value = state.appReason || '';
+      document.getElementById('customColor').value = state.customColor || '';
+      document.getElementById('visualDesc').value = state.visualDesc || '';
+      document.getElementById('extraRequests').value = state.extraRequests || '';
+
+      // 단일 선택 버튼 동기화
+      syncSingleButton('appTypeGrid', state.appType);
+      document.getElementById('appTypeCustomWrap').style.display = state.appType === '기타' ? 'block' : 'none';
+
+      syncSingleButton('targetUserGrid', state.targetUser);
+      document.getElementById('targetUserCustomWrap').style.display = state.targetUser === '기타' ? 'block' : 'none';
+
+      syncSingleButton('moodGrid', state.mood);
+      syncSingleButton('colorGrid', state.mainColor);
+      document.getElementById('customColorWrap').style.display = state.mainColor === '직접 선택' ? 'block' : 'none';
+
+      syncSingleButton('layoutGrid', state.layout);
+      syncUiElementsButtons();
+      syncSingleButton('graphicMethodGrid', state.graphicMethod);
+
+      syncSingleButton('deviceGrid', state.device);
+      syncSingleButton('internetGrid', state.internet);
+      syncSingleButton('loginGrid', state.login);
+      syncSingleButton('storageGrid', state.storage);
+
+      renderSelectedFeatures();
+      renderInteractions();
+    }
+
+    function syncSingleButton(containerId, selectedVal) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.querySelectorAll('.option-btn').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.value === selectedVal);
+      });
+    }
+
+    function startMaking() {
+      goToStep(1);
+    }
+
+    function goHome() {
+      goToStep(0);
+    }
+
+    function goToStep(stepNum, shouldSave = true) {
+      if (stepNum < 0) stepNum = 0;
+      if (stepNum > 5) stepNum = 5;
+
+      state.currentStep = stepNum;
+      if (shouldSave) saveState();
+
+      // 화면 전환
+      document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+      const targetScreen = document.getElementById(`screen-${stepNum}`);
+      if (targetScreen) targetScreen.classList.add('active');
+
+      // 상단 진행률 바 업데이트 (총 5단계)
+      const progressContainer = document.getElementById('progressContainer');
+      if (stepNum === 0) {
+        progressContainer.classList.remove('active');
+      } else {
+        progressContainer.classList.add('active');
+        const percent = Math.round((stepNum / 5) * 100);
+        document.getElementById('progressStepText').textContent = `STEP ${stepNum} / 5`;
+        document.getElementById('progressPercentText').textContent = `${percent}% 진행 중`;
+        document.getElementById('progressBarFill').style.width = `${percent}%`;
+
+        document.querySelectorAll('.step-dot').forEach((dot, idx) => {
+          const dotStep = idx + 1;
+          dot.classList.remove('active', 'completed');
+          if (dotStep === stepNum) dot.classList.add('active');
+          else if (dotStep < stepNum) dot.classList.add('completed');
+        });
+      }
+
+      if (stepNum === 5) {
+        renderSummary();
+        generateAllOutputs(false);
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function prevStep(current) {
+      goToStep(current - 1);
+    }
+
+    function nextStep(current) {
+      if (current === 1) {
+        if (!state.appName.trim()) {
+          showToast('1번 항목: 앱 이름을 입력해 주세요!');
+          document.getElementById('appName').focus();
+          return;
+        }
+        if (!state.appType) {
+          showToast('2번 항목: 앱 종류를 선택해 주세요!');
+          return;
+        }
+        if (!state.appDesc.trim()) {
+          showToast('3번 항목: 앱에 대한 설명을 적어 주세요!');
+          document.getElementById('appDesc').focus();
+          return;
+        }
+      }
+
+      if (current === 2) {
+        if (state.features.length === 0) {
+          showToast('최소 1개 이상의 핵심 기능을 선택하거나 추가해 주세요!');
+          return;
+        }
+      }
+
+      goToStep(current + 1);
+    }
+
+    /* ==========================================================================
+       9. STEP 6: 나의 앱 설계도 요약 렌더링
+       ========================================================================== */
+    function getResolvedAppType() {
+      if (state.appType === '기타') {
+        return state.appTypeCustom.trim() ? `기타 (${state.appTypeCustom.trim()})` : '기타';
+      }
+      return state.appType || '미입력';
+    }
+
+    function getResolvedTargetUser() {
+      if (state.targetUser === '기타') {
+        return state.targetUserCustom.trim() ? `기타 (${state.targetUserCustom.trim()})` : '기타';
+      }
+      return state.targetUser || '미입력';
+    }
+
+    function getResolvedColor() {
+      if (state.mainColor === '직접 선택') {
+        return state.customColor.trim() || '직접 선택 (세부 색상 미입력)';
+      }
+      return state.mainColor || '미입력';
+    }
+
+    function renderSummary() {
+      const container = document.getElementById('summaryContainer');
+
+      const featuresHtml = state.features.length > 0
+        ? `<ul>${state.features.map(f => `<li><strong>${escapeHtml(f.name)}</strong>: ${f.detail.trim() ? escapeHtml(f.detail) : '<span style="color:#94a3b8;">(상세 설명 미입력)</span>'}</li>`).join('')}</ul>`
+        : '<p>선택된 기능이 없습니다.</p>';
+
+      const validInteractions = state.interactions.filter(i => i.action.trim() || i.response.trim() || i.result.trim());
+      const interactionsHtml = validInteractions.length > 0
+        ? `<ul>${validInteractions.map((item, idx) => `
+            <li>
+              <strong>동작 ${idx + 1}:</strong>
+              [행동] ${escapeHtml(item.action || '미입력')} →
+              [반응] ${escapeHtml(item.response || '미입력')} →
+              [결과] ${escapeHtml(item.result || '미입력')}
+            </li>`).join('')}</ul>`
+        : '<p>작성된 동작 규칙이 없습니다.</p>';
+
+      container.innerHTML = `
+        <div class="summary-section">
+          <div class="summary-header">
+            <span class="summary-title">1. 앱 이름과 목적 (STEP 1)</span>
+            <button class="btn-edit-step" onclick="goToStep(1)">수정</button>
+          </div>
+          <div class="summary-content">
+            <p><strong>• 앱 이름:</strong> ${escapeHtml(state.appName || '미입력')}</p>
+            <p><strong>• 앱 종류:</strong> ${escapeHtml(getResolvedAppType())}</p>
+            <p><strong>• 앱 설명:</strong> ${escapeHtml(state.appDesc || '미입력')}</p>
+            <p><strong>• 주요 사용자:</strong> ${escapeHtml(getResolvedTargetUser())}</p>
+            <p><strong>• 만드는 이유:</strong> ${escapeHtml(state.appReason || '미입력')}</p>
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <div class="summary-header">
+            <span class="summary-title">2. 핵심 기능 설계 (STEP 2)</span>
+            <button class="btn-edit-step" onclick="goToStep(2)">수정</button>
+          </div>
+          <div class="summary-content">
+            ${featuresHtml}
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <div class="summary-header">
+            <span class="summary-title">3. 디자인 및 화면 구성 (STEP 3)</span>
+            <button class="btn-edit-step" onclick="goToStep(3)">수정</button>
+          </div>
+          <div class="summary-content">
+            <p><strong>• 전체 분위기:</strong> ${escapeHtml(state.mood || '미입력')}</p>
+            <p><strong>• 주요 색상:</strong> ${escapeHtml(getResolvedColor())}</p>
+            <p><strong>• 화면 구성 방식:</strong> ${escapeHtml(state.layout || '미입력')}</p>
+            <p><strong>• 필요한 화면 요소:</strong> ${state.uiElements.length > 0 ? escapeHtml(state.uiElements.join(', ')) : '미선택'}</p>
+            <p><strong>• 그림/캐릭터 표현:</strong> ${escapeHtml(state.graphicMethod || '미입력')}</p>
+            <p><strong>• 화면 배치 상세 설명:</strong> ${escapeHtml(state.visualDesc || '미입력')}</p>
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <div class="summary-header">
+            <span class="summary-title">4. 사용자 행동과 앱의 반응 (STEP 4)</span>
+            <button class="btn-edit-step" onclick="goToStep(4)">수정</button>
+          </div>
+          <div class="summary-content">
+            ${interactionsHtml}
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <div class="summary-header">
+            <span class="summary-title">5. 개발 환경 및 추가 요청 사항 (STEP 5)</span>
+            <button class="btn-edit-step" onclick="goToStep(5)">수정</button>
+          </div>
+          <div class="summary-content">
+            <p><strong>• 사용할 기기:</strong> ${escapeHtml(state.device)}</p>
+            <p><strong>• 인터넷 연결:</strong> ${escapeHtml(state.internet)}</p>
+            <p><strong>• 로그인 필요 여부:</strong> ${escapeHtml(state.login)}</p>
+            <p><strong>• 데이터 저장 방식:</strong> ${escapeHtml(state.storage)}</p>
+            <p><strong>• 추가 요청 사항:</strong> ${escapeHtml(state.extraRequests || '없음')}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    /* ==========================================================================
+       10. STEP 7: PRD 보고서 / Gemini 프롬프트 / Lovable 프롬프트 자동 생성 엔진
+       (순수 JavaScript 템플릿 조합 방식, 입력되지 않은 내용 임의 확정 금지)
+       ========================================================================== */
+    function generateAllOutputs(navigate = true) {
+      generatedDocs.prd = buildPRDDocument();
+      generatedDocs.gemini = buildGeminiPrompt();
+      generatedDocs.lovable = buildLovablePrompt();
+
+      if (navigate) {
+        goToStep(5);
+        showToast('설계도와 AI 프롬프트가 완성되었습니다!');
+      } else {
+        switchTab(state.activeTab || 'prd');
+      }
+    }
+
+    function buildPRDDocument() {
+      const appName = state.appName.trim() || '(앱 이름 미입력)';
+      const appType = getResolvedAppType();
+      const appDesc = state.appDesc.trim() || '(앱 설명 미입력)';
+      const targetUser = getResolvedTargetUser();
+      const appReason = state.appReason.trim() || '작성자가 별도로 입력하지 않음';
+      const color = getResolvedColor();
+      const uiList = state.uiElements.length > 0 ? state.uiElements.join(', ') : '별도 선택 없음';
+      const visualDesc = state.visualDesc.trim() || '구체적인 화면 배치 설명이 입력되지 않았으므로 기본 사용자 친화적 레이아웃을 따름';
+      const extraReq = state.extraRequests.trim() || '추가 요청 사항 없음';
+
+      const featuresSection = state.features.length > 0
+        ? state.features.map((f, i) => `  ${i + 1}) ${f.name}\n     - 상세 작동 내용: ${f.detail.trim() ? f.detail.trim() : '세부 설명 미입력 (기본 기능으로 구현 필요)'}`).join('\n')
+        : '  - 등록된 핵심 기능이 없습니다.';
+
+      const validInteractions = state.interactions.filter(i => i.action.trim() || i.response.trim() || i.result.trim());
+      const interactionsSection = validInteractions.length > 0
+        ? validInteractions.map((item, i) => `  [동작 시나리오 ${i + 1}]
+   - 사용자 행동: ${item.action.trim() || '(미입력)'}
+   - 시스템 반응: ${item.response.trim() || '(미입력)'}
+   - 최종 결과: ${item.result.trim() || '(미입력)'}`).join('\n\n')
+        : '  - 구체적인 동작 시나리오가 입력되지 않았습니다.';
+
+      const flowSteps = validInteractions.length > 0
+        ? validInteractions.map((item, i) => `  ${i + 1}단계: ${item.action.trim() || '사용자 입력'} → ${item.response.trim() || '앱 처리'} → ${item.result.trim() || '결과 표시'}`).join('\n')
+        : '  1단계: 앱 실행 및 메인 화면 진입 → 2단계: 핵심 기능 조작 → 3단계: 결과 확인 및 재시작';
+
+      const testItems = state.features.length > 0
+        ? state.features.map((f, i) => `  [ ] 테스트 ${i + 1}: '${f.name}' 기능이 오류 없이 의도대로 작동하는가?`).join('\n')
+        : '  [ ] 기본 화면 로딩 및 버튼 클릭이 정상 작동하는가?';
+
+      return `====================================================================
+[앱 기획 및 요구사항 정의서 (PRD 보고서)]
+프로젝트명: ${appName}
+====================================================================
+
+1. 프로젝트 개요
+- 앱 이름: ${appName}
+- 앱 분류: ${appType}
+- 한 줄 요약: ${appDesc}
+
+2. 개발 목적 및 주요 사용자
+- 주요 사용자: ${targetUser}
+- 개발 배경 및 목적: ${appReason}
+
+3. 핵심 기능 목록
+${featuresSection}
+
+4. 화면 구성 및 디자인
+- 전체 분위기: ${state.mood || '미입력'}
+- 주요 테마 색상: ${color}
+- 화면 구성 방식: ${state.layout || '미입력'}
+- 포함될 화면(UI) 요소: ${uiList}
+- 그래픽 및 캐릭터 구현 방식: ${state.graphicMethod || '미입력'}
+- 화면 배치 및 시각적 설명:
+  ${visualDesc}
+
+5. 기능별 작동 방식
+${interactionsSection}
+
+6. 사용자 이용 흐름
+${flowSteps}
+
+7. 개발 환경 및 기술 요구사항
+- 지원 기기(반응형): ${state.device}
+- 네트워크 환경: ${state.internet}
+- 사용자 인증(로그인): ${state.login}
+- 데이터 저장 방식: ${state.storage}
+
+8. 세부 구현 조건
+- 학생 및 초보 사용자도 직관적으로 이해하고 조작할 수 있는 크고 명확한 UI를 구성한다.
+- 사용자가 입력하지 않은 기능이나 과도하게 복잡한 외부 연동은 임의로 추가하지 않고 기획된 핵심 기능에 집중한다.
+- 추가 요청 사항: ${extraReq}
+
+9. 개발 완료 기준 및 테스트 항목
+${testItems}
+  [ ] 테스트 A: ${state.device} 환경에서 화면이 깨지지 않고 정상 표시되는가?
+  [ ] 테스트 B: 잘못된 값을 입력하거나 빈 칸으로 버튼을 눌러도 앱이 멈추지 않고 안내 메시지를 보여주는가?
+  [ ] 테스트 C: 선택한 데이터 저장 방식(${state.storage})에 맞게 데이터가 처리되는가?
+====================================================================`;
+    }
+
+    function buildGeminiPrompt() {
+      const appName = state.appName.trim() || '나만의 웹 앱';
+      const appType = getResolvedAppType();
+      const appDesc = state.appDesc.trim() || '사용자가 입력한 아이디어를 구현한 교육용 웹 애플리케이션';
+      const targetUser = getResolvedTargetUser();
+      const color = getResolvedColor();
+      const uiList = state.uiElements.length > 0 ? state.uiElements.join(', ') : '제목, 버튼, 결과 표시';
+      const visualDesc = state.visualDesc.trim() || '사용자가 한눈에 알아볼 수 있도록 상단 제목, 중앙 메인 영역, 하단 조작 버튼으로 깔끔하게 배치해 주세요.';
+      const extraReq = state.extraRequests.trim() || '특별한 추가 사항 없음';
+
+      const featuresText = state.features.length > 0
+        ? state.features.map((f, i) => `${i + 1}. ${f.name}: ${f.detail.trim() || '해당 기능을 직관적으로 작동하도록 구현'}`).join('\n')
+        : '1. 기본 인터랙션 기능';
+
+      const validInteractions = state.interactions.filter(i => i.action.trim() || i.response.trim() || i.result.trim());
+      const interactionsText = validInteractions.length > 0
+        ? validInteractions.map((item, i) => `- 시나리오 ${i + 1}: [사용자 행동] ${item.action || '버튼 클릭'} -> [앱 반응] ${item.response || '데이터 처리'} -> [실행 결과] ${item.result || '화면 업데이트'}`).join('\n')
+        : '- 사용자가 버튼을 누르면 즉시 반응하고 결과가 화면에 명확히 표시되도록 구현해 주세요.';
+
+      const needsCanvas = (state.graphicMethod && state.graphicMethod.includes('Canvas')) ||
+                          state.features.some(f => f.name.includes('캐릭터') || f.name.includes('게임'));
+
+      return `당신은 친절하고 실력이 뛰어난 풀스택 웹 개발자이자 코딩 선생님입니다.
+아래 기획서를 바탕으로 실제로 완벽하게 작동하는 웹 애플리케이션을 만들어 주세요.
+코딩 경험이 적은 학생도 바로 실행해 볼 수 있도록 완성도 높은 코드를 작성해 주세요.
+
+[1. 앱의 목적과 기본 정보]
+- 앱 이름: ${appName}
+- 앱 종류: ${appType}
+- 앱 설명: ${appDesc}
+- 주요 사용자: ${targetUser}
+- 기획 의도: ${state.appReason.trim() || '사용자가 즐겁고 편리하게 사용할 수 있는 앱 제작'}
+
+[2. 반드시 구현해야 할 핵심 기능]
+${featuresText}
+
+[3. 전체 디자인 및 화면 배치]
+- 전체 분위기: ${state.mood}
+- 주요 색상: ${color} (배경과 버튼, 강조 요소에 조화롭게 적용)
+- 화면 구성 방식: ${state.layout}
+- 필수 화면 요소: ${uiList}
+- 그래픽 및 캐릭터 표현 방식: ${state.graphicMethod}
+- 화면 배치 설명: ${visualDesc}
+
+[4. 버튼과 입력창의 동작 및 로직 규칙]
+${interactionsText}
+${needsCanvas ? '- 게임/그래픽 움직임이 필요한 경우 HTML5 <canvas>와 requestAnimationFrame을 사용해 부드럽게 작동하도록 구현해 주세요.' : ''}
+
+[5. 기술 및 개발 조건]
+- 지원 기기: ${state.device} (PC, 태블릿, 스마트폰 모두에서 깨지지 않는 반응형 디자인 적용)
+- 인터넷 환경: ${state.internet}
+- 로그인 여부: ${state.login}
+- 데이터 저장 방식: ${state.storage} (브라우저 저장이 필요한 경우 localStorage 사용)
+- 추가 요청 사항: ${extraReq}
+
+[6. 예외 상황 처리 및 품질 조건]
+- 사용자가 입력창을 비워둔 채 버튼을 누르거나 잘못된 숫자를 입력해도 오류가 나지 않도록 예외 처리를 넣고 친절한 안내 문구를 화면에 표시해 주세요.
+- alert() 창 대신 화면 내부의 깔끔한 메시지 박스나 모달을 사용해 주세요.
+- 기획서에 적힌 요구사항을 임의로 빼먹지 말고 모두 포함해 주세요.
+
+[7. 출력 형식 및 실행 안내 요청]
+1) 별도의 서버나 복잡한 설치 없이 브라우저에서 바로 실행할 수 있도록 HTML, CSS, JavaScript가 모두 포함된 단일 'index.html' 파일 전체 코드를 작성해 주세요.
+2) 코드 작성 후, 코딩 초보자도 쉽게 따라 할 수 있도록 ① 파일을 저장하는 방법, ② 브라우저에서 실행하는 방법, ③ 기능이 잘 작동하는지 확인하는 테스트 방법을 쉬운 한국어로 단계별 설명해 주세요.`;
+    }
+
+    function buildLovablePrompt() {
+      const appName = state.appName.trim() || 'My Custom App';
+      const appType = getResolvedAppType();
+      const appDesc = state.appDesc.trim() || '사용자 맞춤형 인터랙티브 웹 애플리케이션';
+      const targetUser = getResolvedTargetUser();
+      const color = getResolvedColor();
+      const uiList = state.uiElements.length > 0 ? state.uiElements.join(', ') : '제목, 버튼, 결과 표시';
+      const visualDesc = state.visualDesc.trim() || '직관적이고 깔끔한 카드형 레이아웃으로 구성';
+      const extraReq = state.extraRequests.trim() || '없음';
+
+      const featuresText = state.features.length > 0
+        ? state.features.map((f, i) => `  ${i + 1}. [${f.name}] ${f.detail.trim() || '사용자 상호작용에 따라 즉시 동작하도록 구현'}`).join('\n')
+        : '  1. 기본 사용자 인터랙션 및 결과 표시';
+
+      const validInteractions = state.interactions.filter(i => i.action.trim() || i.response.trim() || i.result.trim());
+      const interactionsText = validInteractions.length > 0
+        ? validInteractions.map((item, i) => `  - Flow ${i + 1}: 사용자가 "${item.action || '조작'}" 하면 -> "${item.response || '로직 실행'}" 처리 후 -> "${item.result || '결과 출력'}"`).join('\n')
+        : '  - 사용자의 클릭 및 입력 이벤트에 즉각적으로 상태(State)가 업데이트되도록 구현';
+
+      const needsCanvas = (state.graphicMethod && state.graphicMethod.includes('Canvas')) ||
+                          state.features.some(f => f.name.includes('캐릭터') || f.name.includes('게임'));
+
+      const testCriteria = state.features.length > 0
+        ? state.features.map((f, i) => `  - [테스트 ${i + 1}] '${f.name}' 동작 시 UI 상태와 계산 결과가 정확히 반영되는지 검증`).join('\n')
+        : '  - [기본 테스트] 모든 버튼 클릭과 입력 폼 제출이 정상 작동하는지 검증';
+
+      return `다음 명세에 따라 실제로 완벽하게 동작하는 웹 애플리케이션을 React와 Tailwind CSS로 개발해 주세요.
+단순한 디자인 시안(Mockup)이 아니라, 모든 버튼, 입력창, 계산, 게임 로직이 실제로 작동하는 완성된 앱이어야 합니다.
+
+# 1. 프로젝트 개요
+- 앱 이름: ${appName}
+- 카테고리: ${appType}
+- 핵심 설명: ${appDesc}
+- 주요 타겟 사용자: ${targetUser}
+- 기획 배경: ${state.appReason.trim() || '사용자에게 직관적이고 유용한 경험 제공'}
+
+# 2. 기술 스택 및 아키텍처 조건
+- 프레임워크: React (함수형 컴포넌트 및 Hooks 기반 상태 관리)
+- 스타일링: Tailwind CSS (반응형 유틸리티 클래스 적극 활용)
+- 지원 환경: ${state.device} (모바일, 태블릿, 데스크톱 완벽 반응형 지원)
+- 네트워크/인증: ${state.internet} / ${state.login}
+- 데이터 유지: ${state.storage} (브라우저 저장 선택 시 localStorage 연동 및 초기화 기능 포함)
+- 주의사항: 사용자가 요청한 핵심 기능에 집중하고, 요구사항에 없는 불필요하고 복잡한 백엔드나 외부 API 연동을 임의로 추가하지 마세요.
+
+# 3. UI/UX 디자인 및 컴포넌트 설계
+- 전체 분위기: ${state.mood}
+- 메인 테마 색상: ${color}
+- 화면 구조: ${state.layout}
+- 필수 UI 컴포넌트: ${uiList}
+- 그래픽/캐릭터 구현 방식: ${state.graphicMethod}
+- 상세 화면 배치 설명: ${visualDesc}
+${needsCanvas ? '- Canvas 구현 조건: 게임 및 실시간 그래픽 애니메이션은 React의 useRef와 useEffect를 활용한 HTML5 <canvas> 컴포넌트로 구현하고, 키보드/터치/버튼 조작을 모두 지원하세요.' : ''}
+
+# 4. 핵심 기능 및 상태 관리(State) 로직
+${featuresText}
+
+# 5. 사용자 행동 - 앱 반응 - 실행 결과 시나리오
+${interactionsText}
+
+# 6. 추가 요청 사항 및 예외 처리
+- 추가 요청: ${extraReq}
+- 빈 입력값 제출, 0으로 나누기, 중복 클릭 등 예외 상황에서도 앱이 멈추지 않도록 방어 코드를 작성하고 친절한 인라인 안내 메시지를 표시하세요.
+
+# 7. 기능별 테스트 기준
+${testCriteria}
+  - [반응형 테스트] 모바일 화면(375px)과 데스크톱 화면(1280px)에서 버튼과 텍스트가 겹치지 않고 조작이 편리한지 확인하세요.`;
+    }
+
+    function switchTab(tabName) {
+      state.activeTab = tabName;
+      saveState();
+
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById(`tabBtn-${tabName}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const labelMap = {
+        prd: '현재 보기: 1. 앱 전체 설계 PRD 보고서',
+        gemini: '현재 보기: 2. Google Gemini용 앱 개발 프롬프트',
+        lovable: '현재 보기: 3. Lovable용 앱 개발 프롬프트'
+      };
+      document.getElementById('currentTabLabel').textContent = labelMap[tabName] || '';
+      document.getElementById('outputTextarea').value = generatedDocs[tabName] || '';
+    }
+
+    function copyCurrentOutput() {
+      const textarea = document.getElementById('outputTextarea');
+      const text = textarea.value;
+      if (!text) return;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(() => showToast('✅ 전체 내용이 클립보드에 복사되었습니다! AI 도구에 붙여넣기 하세요.'))
+          .catch(() => fallbackCopy(textarea));
+      } else {
+        fallbackCopy(textarea);
+      }
+    }
+
+    function fallbackCopy(textarea) {
+      textarea.select();
+      textarea.setSelectionRange(0, 99999);
+      try {
+        document.execCommand('copy');
+        showToast('✅ 전체 내용이 복사되었습니다!');
+      } catch (e) {
+        showToast('복사에 실패했습니다. 텍스트를 직접 선택해 복사해 주세요.');
+      }
+    }
+
+    /* ==========================================================================
+       11. 모달, 토스트, 유틸리티 함수
+       ========================================================================== */
+    function openResetModal() {
+      document.getElementById('resetModal').classList.add('show');
+    }
+
+    function closeResetModal() {
+      document.getElementById('resetModal').classList.remove('show');
+    }
+
+    function confirmReset() {
+      localStorage.removeItem(STORAGE_KEY);
+      state = getDefaultState();
+      generatedDocs = { prd: '', gemini: '', lovable: '' };
+      syncFormWithState();
+      closeResetModal();
+      goHome();
+      showToast('모든 내용이 초기화되었습니다.');
+    }
+
+    let toastTimer = null;
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // 페이지 로드 시 실행
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
